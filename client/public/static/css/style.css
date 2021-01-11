@@ -1,0 +1,18 @@
+html,
+body {
+  height: 100%;
+  background-color: white;
+}
+
+html {
+  filter: invert(1);
+}
+
+#nprogress .bar {
+  height: 4px !important;
+  background: red !important;
+}
+
+.nav a:hover {
+  border-radius: 0px;
+}
