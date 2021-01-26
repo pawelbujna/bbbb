@@ -1,4 +1,5 @@
 const mongoose = require("mongoose");
+const { ObjectId } = mongoose.Schema;
 
 const categorySchema = new mongoose.Schema(
   {
@@ -23,7 +24,7 @@ const categorySchema = new mongoose.Schema(
       min: 20,
       max: 2000000,
     },
-    postBy: {
+    postedBy: {
       type: ObjectId,
       ref: "User",
     },
@@ -31,4 +32,4 @@ const categorySchema = new mongoose.Schema(
   { timestamps: true }
 );
 
-module.exports = mongoose.model("Category", categoryScheema);
+module.exports = mongoose.model("Category", categorySchema);
