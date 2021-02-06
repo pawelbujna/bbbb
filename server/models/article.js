@@ -1,7 +1,12 @@
 const mongoose = require("mongoose");
 const { ObjectId } = mongoose.Schema;
 
-const categorySchema = new mongoose.Schema(
+const fileSchema = new mongoose.Schema({
+  url: String,
+  key: String,
+});
+
+const articleSchema = new mongoose.Schema(
   {
     name: {
       type: String,
@@ -15,10 +20,7 @@ const categorySchema = new mongoose.Schema(
       unique: true,
       index: true,
     },
-    image: {
-      url: String,
-      key: String,
-    },
+    files: [fileSchema],
     content: {
       type: {},
       min: 20,
@@ -32,4 +34,4 @@ const categorySchema = new mongoose.Schema(
   { timestamps: true }
 );
 
-module.exports = mongoose.model("Category", categorySchema);
+module.exports = mongoose.model("Article", articleSchema);

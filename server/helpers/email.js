@@ -49,3 +49,29 @@ exports.forgotPasswordEmailParams = (email, token) => {
     },
   };
 };
+
+exports.inviteEmailParams = (email, token) => {
+  return {
+    Source: process.env.EMAIL_FROM,
+    Destination: {
+      ToAddresses: [email],
+    },
+    ReplyToAddresses: [process.env.EMAIL_TO],
+    Message: {
+      Body: {
+        Html: {
+          Charset: "UTF-8",
+          Data: `<html>
+              <h1>Create new account</h1>
+              <p>Please use the following link to create your account: </p>
+              <p>${process.env.CLIENT_URL}/auth/invite/${token}</p>
+            </html>`,
+        },
+      },
+      Subject: {
+        Charset: "UTF-8",
+        Data: "Create new account",
+      },
+    },
+  };
+};

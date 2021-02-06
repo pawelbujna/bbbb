@@ -11,7 +11,7 @@ const app = express();
 // import routes
 const authRoutes = require("./routes/auth");
 const userRoutes = require("./routes/user");
-const categoryRoutes = require("./routes/category");
+const articleRoutes = require("./routes/article");
 // app middlewareds
 app.use(morgan("dev"));
 // app.use(bodyParser.json());
@@ -35,7 +35,7 @@ mongoose
 // middlewares
 app.use("/api/", authRoutes);
 app.use("/api/", userRoutes);
-app.use("/api/", categoryRoutes);
+app.use("/api/", articleRoutes);
 
 const port = process.env.PORT || 8080;
 app.listen(port, () => console.log(`listening on port: ${port}`));

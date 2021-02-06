@@ -30,7 +30,6 @@ const ActivateAccount = ({ router }) => {
 
   const clickSubmit = async (e) => {
     e.preventDefault();
-    //
 
     setState({
       ...state,

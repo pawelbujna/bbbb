@@ -1,16 +1,16 @@
 const { check } = require("express-validator");
 
-exports.categoryCreateValidator = [
+exports.articleCreateValidator = [
   check("name").notEmpty().withMessage("Name is required"),
-  check("image").notEmpty().withMessage("Image is required"),
+  check("files").isArray().withMessage("Files is not array"),
   check("content")
     .isLength({ min: 20 })
     .withMessage("Content is required. At least 20 characters"),
 ];
 
-exports.categoryUpdateValidator = [
+exports.articleUpdateValidator = [
   check("name").notEmpty().withMessage("Name is required"),
-  check("image").notEmpty().withMessage("Image is required"),
+  check("files").isArray().withMessage("Files is not array"),
   check("content")
     .isLength({ min: 20 })
     .withMessage("Content is required required. At least 20 characters"),

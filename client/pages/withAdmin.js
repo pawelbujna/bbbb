@@ -21,7 +21,7 @@ const withAdmin = (callback) => async (context) => {
     }
   }
 
-  const props = callback ? callback(context, { admin }) : {};
+  const props = callback ? await callback({ context, token }, { admin }) : {};
 
   if (admin === null) {
     return {

@@ -6,6 +6,7 @@ const expressJwt = require("express-jwt");
 const {
   registerEmailParams,
   forgotPasswordEmailParams,
+  inviteEmailParams,
 } = require("../helpers/email");
 
 AWS.config.update({
@@ -18,7 +19,8 @@ const ses = new AWS.SES({
   apiVersion: "2010-12-01",
 });
 
-exports.register = (req, res) => {
+// IN CASE I WOULD NEED REGISTER FUNCTION SOMEDAY
+exports.registerPrivate = (req, res) => {
   const { name, email, password } = req.body;
 
   // Check if userExists in DB
@@ -61,6 +63,66 @@ exports.register = (req, res) => {
           message: `We could not verify your email. Please try again.`,
         });
       });
+  });
+};
+
+exports.register = (req, res) => {
+  const { name, email, password, token } = req.body;
+
+  jwt.verify(token, process.env.JWT_INVITATION, function (err, decoded) {
+    if (err) {
+      return res.status(401).json({
+        error: "Expired link. Try again.",
+      });
+    }
+
+    if (decoded.email !== email) {
+      return res.status(401).json({
+        error: "Wrong email address.",
+      });
+    }
+
+    // Check if userExists in DB
+    User.findOne({ email }).exec((err, user) => {
+      if (user) {
+        console.log(err);
+
+        return res.status(400).json({
+          error: "Email is taken",
+        });
+      }
+
+      // generate token with user name, email and password
+      const token = jwt.sign(
+        {
+          name,
+          email,
+          password,
+        },
+        process.env.JWT_ACCOUNT_ACTIVATION,
+        {
+          expiresIn: "10m",
+        }
+      );
+
+      const params = registerEmailParams(email, token);
+
+      const sendEmailOnRegister = ses.sendEmail(params).promise();
+
+      sendEmailOnRegister
+        .then((data) => {
+          console.log(`Email sent to ses: `, data);
+          res.json({
+            message: `Email has been sent to ${email}. Follow the instructions on to complete your reigstration`,
+          });
+        })
+        .catch((err) => {
+          console.log(err);
+          res.status(400).json({
+            error: `Something went wrong. Try later.`,
+          });
+        });
+    });
   });
 };
 
@@ -173,6 +235,40 @@ exports.adminMiddleware = (req, res, next) => {
   });
 };
 
+exports.invite = (req, res) => {
+  const { email } = req.body;
+
+  User.findOne({ email }).exec((err, user) => {
+    if (!err && user) {
+      return res.status(400).json({
+        error: "User with that email does already exist.",
+      });
+    }
+
+    const token = jwt.sign({ email }, process.env.JWT_INVITATION, {
+      expiresIn: "72h",
+    });
+
+    const params = inviteEmailParams(email, token);
+
+    const sendEmail = ses.sendEmail(params).promise();
+
+    sendEmail
+      .then((data) => {
+        console.log("Invitation sent", data);
+        res.json({
+          message: `Invitation has been sent to ${email}.`,
+        });
+      })
+      .catch((error) => {
+        console.log("Invitation sent failed", error);
+        res.status(400).json({
+          error: `Something went wrong. Try later.`,
+        });
+      });
+  });
+};
+
 exports.forgotPassword = (req, res) => {
   const { email } = req.body;
 
@@ -205,14 +301,14 @@ exports.forgotPassword = (req, res) => {
       sendEmail
         .then((data) => {
           console.log("reset password success", data);
-          return res.json({
+          res.json({
             message: `Email has been sent to ${email}. Click to reset your password.`,
           });
         })
         .catch((error) => {
           console.log("reset pasword failet", error);
-          return res.json({
-            message: `we could not find your email. Try later.`,
+          res.status(400).json({
+            error: `Something went wrong. Try later.`,
           });
         });
     });

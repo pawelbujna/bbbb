@@ -1,17 +1,21 @@
 import { useState, useEffect } from "react";
-import Layout from "../components/Layout";
+import { withRouter } from "next/router";
+import jwt from "jsonwebtoken";
+import Layout from "../../../components/Layout";
 import axios from "axios";
 import Router from "next/router";
 
-import { isAuth } from "../helpers/auth";
+import { isAuth } from "../../../helpers/auth";
 
-import { showSuccessMessage, showErrorMessage } from "../helpers/alert";
+import { showSuccessMessage, showErrorMessage } from "../../../helpers/alert";
 
-const Register = () => {
+const Register = ({ router }) => {
   const [state, setState] = useState({
+    usersEmail: "",
     name: "",
     email: "",
     password: "",
+    token: "",
     error: "",
     success: "",
     buttonText: "Register",
@@ -20,6 +24,16 @@ const Register = () => {
   useEffect(() => {
     isAuth() && Router.push("/");
   }, []);
+
+  useEffect(() => {
+    let token = router.query.id;
+
+    if (token) {
+      const { email } = jwt.decode(token);
+
+      setState({ ...state, usersEmail: email, email, token });
+    }
+  }, [router]);
 
   const handleChange = (name) => (e) => {
     setState({
@@ -31,7 +45,16 @@ const Register = () => {
     });
   };
 
-  const { name, email, password, error, success, buttonText } = state;
+  const {
+    name,
+    email,
+    token,
+    usersEmail,
+    password,
+    error,
+    success,
+    buttonText,
+  } = state;
 
   const handleSubmit = async (e) => {
     e.preventDefault();
@@ -39,10 +62,11 @@ const Register = () => {
     setState({ ...state, buttonText: "Registering" });
 
     try {
-      const response = await axios.post(`${process.env.API}/register/private`, {
+      const response = await axios.post(`${process.env.API}/register`, {
         name,
         email,
         password,
+        token,
       });
 
       setState({
@@ -110,7 +134,7 @@ const Register = () => {
   return (
     <Layout>
       <div className="col-md-6 offset-md-3">
-        <h1>Register</h1>
+        <h1>Hi {usersEmail}. Please create your account.</h1>
 
         <br />
 
@@ -123,4 +147,4 @@ const Register = () => {
   );
 };
 
-export default Register;
+export default withRouter(Register);

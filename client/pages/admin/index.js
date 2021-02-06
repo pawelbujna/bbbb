@@ -11,8 +11,13 @@ const Admin = ({ admin, token }) => {
         <div className="col-md-4">
           <ul className="nav flex-column">
             <li className="nav-item">
-              <Link href="/admin/category/create">
-                <a className="nav-link">Create category</a>
+              <Link href="/admin/article/create">
+                <a className="nav-link">Create article</a>
+              </Link>
+            </li>
+            <li className="nav-item">
+              <Link href="/admin/invite">
+                <a className="nav-link">Send invitation</a>
               </Link>
             </li>
           </ul>

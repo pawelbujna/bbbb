@@ -1,34 +1,29 @@
-import { useState, useEffect, useMemo } from "react";
-import dynamic from "next/dynamic";
+import { useState } from "react";
 import axios from "axios";
-import Resizer from "react-image-file-resizer";
 
 import Layout from "../../../components/Layout";
+import Editor from "../../../components/Editor";
+import Dropzone from "../../../components/Dropzone";
 import withAdmin from "../../withAdmin";
 
 import { showSuccessMessage, showErrorMessage } from "../../../helpers/alert";
-
-// dynamic import with nextjs
-const ReactQuill = dynamic(() => import("react-quill"), { ssr: false });
-import "react-quill/dist/quill.bubble.css";
 
 const Create = ({ token }) => {
   const [state, setState] = useState({
     name: "",
     error: "",
     success: "",
-    image: "",
+    files: [],
     buttonText: "Create",
-    imageUploadText: "Upload Image",
   });
 
-  const [imageUploadButtonName, setImageUploadButtonName] = useState(
-    "Upload image"
-  );
+  const [content, setContent] = useState("");
 
-  const [content, setContent] = useState([]);
+  const { name, error, success, files, buttonText } = state;
 
-  const { name, error, success, image, buttonText } = state;
+  const handleFiles = (files) => {
+    setState({ ...state, files });
+  };
 
   const handleChange = (name) => (e) => {
     setState({
@@ -44,36 +39,33 @@ const Create = ({ token }) => {
     setState({ ...state, success: "", error: "" });
   };
 
-  const handleImage = (e) => {
-    const file = e.target.files[0];
-
-    setImageUploadButtonName(file.name);
-
-    Resizer.imageFileResizer(
-      file,
-      300,
-      300,
-      "JPEG",
-      100,
-      0,
-      (uri) => {
-        setState({ ...state, image: uri });
-      },
-      "base64",
-      200,
-      200
-    );
-  };
-
   const handleSubmit = async (e) => {
     e.preventDefault();
 
     setState({ ...state, buttonText: "Creating..." });
 
+    const readFileAsDataURL = async (file) => {
+      if (file) {
+        return await new Promise((resolve) => {
+          const reader = new FileReader();
+
+          reader.onloadend = (e) => resolve(reader.result);
+
+          reader.readAsDataURL(file);
+        });
+      }
+    };
+
+    const base64Files = [];
+
+    for await (const base64 of files.map(readFileAsDataURL)) {
+      base64Files.push(base64);
+    }
+
     try {
       const response = await axios.post(
-        `${process.env.API}/category`,
-        { name, content, image },
+        `${process.env.API}/article`,
+        { name, content, files: base64Files },
         {
           headers: {
             Authorization: `Bearer ${token}`,
@@ -84,19 +76,14 @@ const Create = ({ token }) => {
       setState({
         ...state,
         name: "",
-        content: "",
-        formData: "",
+        files: [],
         buttonText: "Created",
         success: `${response.data.name} is created`,
         imageUploadText: "Upload image",
       });
 
-      setImageUploadButtonName("Upload image");
-
-      console.log("CATEGORY CREATE RESPONSE ", response);
+      setContent("");
     } catch (error) {
-      console.log("CATEGORY CREATE ERROR ", error);
-
       setState({
         ...state,
         buttonText: "Create",
@@ -118,37 +105,12 @@ const Create = ({ token }) => {
         />
       </div>
 
-      <div className="form-group">
-        <label className="text-muted">Content</label>
-        {/* <textarea
-          className="form-control"
-          onChange={handleChange("content")}
-          value={content}
-          required
-        /> */}
-
-        <ReactQuill
-          value={content}
-          onChange={handleContent}
-          theme="bubble"
-          className="pb-5 mb-3"
-          style={{ border: "1px solid #666" }}
-        />
+      <div>
+        <Editor onChange={handleContent} value={content} label="Content" />
       </div>
 
-      <div className="form-group">
-        <label className="btn btn-outline-secondary">
-          {imageUploadButtonName}
-
-          <input
-            type="file"
-            accept="image/*"
-            className="form-control"
-            onChange={handleImage}
-            required
-            hidden
-          />
-        </label>
+      <div>
+        <Dropzone onChange={handleFiles} files={files} />
       </div>
 
       <div>
@@ -164,9 +126,12 @@ const Create = ({ token }) => {
       <div className="row">
         <div className="col-md-6 offset-md-3">
           <h1>Create category</h1>
+
           <br />
+
           {success && showSuccessMessage(success)}
           {error && showErrorMessage(error)}
+
           {createCategoryForm()}
         </div>
       </div>

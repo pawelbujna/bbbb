@@ -21,7 +21,7 @@ const withUser = (callback) => async (context) => {
     }
   }
 
-  const props = callback ? callback(context, { user }) : {};
+  const props = callback ? await callback(context, { user }) : {};
 
   if (user === null) {
     return {

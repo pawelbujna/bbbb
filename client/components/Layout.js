@@ -20,6 +20,10 @@ const Layout = ({ children }) => {
         integrity="sha384-Gn5384xqQ1aoWXA+058RXPxPg6fy4IWvTNh0E263XmFcJlSAwiGgFAW/dAiS6JXm"
         crossOrigin="anonymous"
       />
+      <link
+        rel="stylesheet"
+        href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.3.0/font/bootstrap-icons.css"
+      ></link>
       <link rel="stylesheet" href="/static/css/style.css" />
     </>
   );
@@ -33,7 +37,7 @@ const Layout = ({ children }) => {
   const nav = () => (
     <ul className="nav nav-tabs bg-warning">
       <li className="nav-item">
-        <Link href="/">
+        <Link href={isAuth() ? "/articles" : "/login"}>
           <a className="nav-link text-dark">Home</a>
         </Link>
       </li>
@@ -46,11 +50,11 @@ const Layout = ({ children }) => {
             </Link>
           </li>
 
-          <li className="nav-item">
+          {/* <li className="nav-item">
             <Link href="/register">
               <a className="nav-link text-dark">Register</a>
             </Link>
-          </li>
+          </li> */}
         </>
       )}
 

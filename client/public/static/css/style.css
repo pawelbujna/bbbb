@@ -16,3 +16,7 @@ html {
 .nav a:hover {
   border-radius: 0px;
 }
+
+.cursor-pointer {
+  cursor: pointer;
+}
