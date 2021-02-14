@@ -3,9 +3,6 @@ import { withRouter } from "next/router";
 import jwt from "jsonwebtoken";
 import Layout from "../../../components/Layout";
 import axios from "axios";
-import Router from "next/router";
-
-import { isAuth } from "../../../helpers/auth";
 
 import { showSuccessMessage, showErrorMessage } from "../../../helpers/alert";
 
@@ -18,12 +15,9 @@ const Register = ({ router }) => {
     token: "",
     error: "",
     success: "",
-    buttonText: "Register",
+    buttonText: "Zapisz",
+    isDisabled: false,
   });
-
-  useEffect(() => {
-    isAuth() && Router.push("/");
-  }, []);
 
   useEffect(() => {
     let token = router.query.id;
@@ -41,7 +35,7 @@ const Register = ({ router }) => {
       [name]: e.target.value,
       error: "",
       success: "",
-      buttonText: "Register",
+      buttonText: "Zapisz",
     });
   };
 
@@ -54,12 +48,13 @@ const Register = ({ router }) => {
     error,
     success,
     buttonText,
+    isDisabled,
   } = state;
 
   const handleSubmit = async (e) => {
     e.preventDefault();
 
-    setState({ ...state, buttonText: "Registering" });
+    setState({ ...state, buttonText: "Zapisuje...", isDisabled: true });
 
     try {
       const response = await axios.post(`${process.env.API}/register`, {
@@ -74,13 +69,15 @@ const Register = ({ router }) => {
         name: "",
         email: "",
         password: "",
-        buttonText: "Submitted",
+        buttonText: "Zapisz",
+        isDisabled: false,
         success: response.data.message,
       });
     } catch (error) {
       setState({
         ...state,
-        buttonText: "Register",
+        buttonText: "Zapisz",
+        isDisabled: false,
         error: error.response.data.error,
       });
     }
@@ -94,7 +91,7 @@ const Register = ({ router }) => {
             value={name}
             type="text"
             className="form-control"
-            placeholder="Name"
+            placeholder="Imie"
             onChange={handleChange("name")}
             required
           />
@@ -116,14 +113,18 @@ const Register = ({ router }) => {
             value={password}
             type="password"
             className="form-control"
-            placeholder="Password"
+            placeholder="Hasło"
             onChange={handleChange("password")}
             required
           />
         </div>
 
         <div className="form-group">
-          <button className="btn btn-outline-warning" type="submit">
+          <button
+            disabled={isDisabled}
+            className="btn btn-outline-warning"
+            type="submit"
+          >
             {buttonText}
           </button>
         </div>
@@ -134,7 +135,7 @@ const Register = ({ router }) => {
   return (
     <Layout>
       <div className="col-md-6 offset-md-3">
-        <h1>Hi {usersEmail}. Please create your account.</h1>
+        <h1>Cześć {usersEmail}. Stwórz swoje konto.</h1>
 
         <br />
 

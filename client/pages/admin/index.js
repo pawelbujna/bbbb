@@ -5,24 +5,28 @@ import Link from "next/link";
 const Admin = ({ admin, token }) => {
   return (
     <Layout>
-      <h1>Admin dashboard</h1>
-      <br />
       <div className="row">
-        <div className="col-md-4">
-          <ul className="nav flex-column">
+        <div className="col-md-8 offset-md-2">
+          <h1>Panel sterowania</h1>
+          <br />
+          <ul className="nav">
             <li className="nav-item">
               <Link href="/admin/article/create">
-                <a className="nav-link">Create article</a>
+                <a className="nav-link">Dodaj ogłoszenie</a>
               </Link>
             </li>
-            <li className="nav-item">
+            <li className="nav-item ml-3">
               <Link href="/admin/invite">
-                <a className="nav-link">Send invitation</a>
+                <a className="nav-link">Wyślij zaproszenie</a>
+              </Link>
+            </li>
+            <li className="nav-item ml-3">
+              <Link href="/admin/users">
+                <a className="nav-link">Lista uzytkownikow</a>
               </Link>
             </li>
           </ul>
         </div>
-        <div className="col-md-8"></div>
       </div>
     </Layout>
   );

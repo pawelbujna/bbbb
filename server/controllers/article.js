@@ -1,7 +1,6 @@
 const Article = require("../models/article");
 const slugify = require("slugify");
 const AWS = require("aws-sdk");
-const { v4: uuidv4 } = require("uuid");
 
 const s3 = new AWS.S3({
   accessKeyID: process.env.AWS_ACCESS_KEY_ID,
@@ -10,33 +9,7 @@ const s3 = new AWS.S3({
 });
 
 exports.create = (req, res) => {
-  const { name, files, content } = req.body;
-
-  const uploadLoadToS3 = (file) => {
-    const type = file.split(":")[1].split(";")[0];
-
-    const base64Data = new Buffer.from(
-      file.split(";")[1].split(",")[1],
-      "base64"
-    );
-
-    const params = {
-      Bucket: "hackr-papu",
-      Key: `article/${uuidv4()}.${type.split("/")[1]}`,
-      Body: base64Data,
-      ACL: "public-read",
-      ContentEncoding: "base64",
-      ContentType: `${type}`,
-    };
-
-    return s3.upload(params).promise();
-  };
-
-  const promises = [];
-
-  files.forEach((file) => {
-    promises.push(uploadLoadToS3(file));
-  });
+  const { name, content } = req.body;
 
   const slug = slugify(name);
 
@@ -47,29 +20,64 @@ exports.create = (req, res) => {
     postedBy: req.user._id,
   });
 
-  Promise.all(promises)
-    .then((data) => {
-      article.files =
-        data.length > 0
-          ? data.map((item) => ({
-              key: item.Key,
-              url: item.Location,
-            }))
-          : [];
+  if (req.files) {
+    const { files } = req.files;
 
-      article.save((error, success) => {
-        if (error) {
-          console.log(error);
-          return res.status(400).json({ error: "Article create failed" });
-        }
+    const uploadLoadToS3 = (file) => {
+      const params = {
+        Bucket: "hackr-papu",
+        Key: `article/${file.name}`,
+        Body: file.data,
+      };
 
-        res.json(success);
-      });
-    })
-    .catch((err) => {
-      console.log(err);
-      return res.status(400).json({ error: "Uploading to s3 failed" });
+      return s3.upload(params).promise();
+    };
+
+    const promises = [];
+
+    files.forEach((file) => {
+      promises.push(uploadLoadToS3(file));
     });
+
+    Promise.all(promises)
+      .then((data) => {
+        article.files =
+          data.length > 0
+            ? data.map((item) => ({
+                key: item.Key,
+                url: item.Location,
+              }))
+            : [];
+
+        article.save((error, success) => {
+          if (error) {
+            console.log(error);
+            return res
+              .status(400)
+              .json({ error: "Tworzenie ogłoszenia nie powiodło się" });
+          }
+
+          res.json(success);
+        });
+      })
+      .catch((err) => {
+        console.log(err);
+        return res
+          .status(400)
+          .json({ error: "Wgrywanie plików się nie powiodło" });
+      });
+  } else {
+    article.save((error, success) => {
+      if (error) {
+        console.log(error);
+        return res
+          .status(400)
+          .json({ error: "Tworzenie ogłoszenia nie powiodło się" });
+      }
+
+      res.json(success);
+    });
+  }
 };
 
 exports.list = (req, res) => {
@@ -86,6 +94,7 @@ exports.list = (req, res) => {
   });
 };
 
+// TODO: Fix edition of article
 exports.read = (req, res) => {
   const { slug } = req.params;
 
@@ -98,10 +107,96 @@ exports.read = (req, res) => {
       });
     }
 
-    res.json(data[0]);
+    const getFromS3 = (fileName) => {
+      const params = {
+        Bucket: "hackr-papu",
+        Key: `${fileName}`,
+      };
+
+      return s3.getObject(params).promise();
+    };
+
+    const promises = [];
+
+    data[0].files.forEach((file) => {
+      promises.push(getFromS3(file.key));
+    });
+
+    // Czekam az wszystkie pliki zostana pobrane
+    Promise.all(promises)
+      .then((files) => {
+        console.log(files);
+
+        // Tutaj mam problem. Jak odesłać pliki tak zeby mialy taki sam typ jak po stronie frontendu.
+        data[0].files = files.map((file) => file.Body.toString("utf-8"));
+        res.send(data[0]);
+      })
+      .catch((err) => {
+        console.log(err);
+        return res.status(400).json({ error: "Getting files from s3 failed" });
+      });
   });
 };
 
 exports.update = (req, res) => {};
 
-exports.remove = (req, res) => {};
+exports.remove = (req, res) => {
+  const { slug } = req.params;
+
+  Article.findOneAndDelete({ slug }).exec((err, data) => {
+    if (err) {
+      console.log("Error deleteing article");
+
+      return res.status(400).json({
+        error: "Nie mozna załadowac ogloszenia",
+      });
+    }
+
+    if (!data) {
+      console.log("Error deleteing article");
+
+      return res.status(400).json({
+        error: "Taki artykuł nie istnieje.",
+      });
+    }
+
+    console.log(data);
+    if (data && data.files && data.files.length > 0) {
+      const deleteFromS3 = (fileName) => {
+        const params = {
+          Bucket: "hackr-papu",
+          Key: `${fileName}`,
+        };
+        console.log("deleteFromS3");
+
+        return s3.deleteObject(params).promise();
+      };
+
+      const promises = [];
+
+      data.files.forEach((file) => {
+        console.log("loop");
+        promises.push(deleteFromS3(file.key));
+      });
+
+      Promise.all(promises)
+        .then(() => {
+          console.log("deleted, promise resolved");
+          res.json({
+            message: "Artykuł usunięty pomyślnie",
+          });
+        })
+        .catch((err) => {
+          console.log(err);
+          return res
+            .status(400)
+            .json({ error: "Deleting files from s3 failed" });
+        });
+    } else {
+      console.log("response without files");
+      res.json({
+        message: "Artykuł usunięty pomyślnie",
+      });
+    }
+  });
+};

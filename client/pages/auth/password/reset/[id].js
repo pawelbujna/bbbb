@@ -13,17 +13,25 @@ const Reset = ({ router }) => {
     name: "",
     newPassword: "",
     token: "",
-    buttonText: "Reset password",
+    buttonText: "Zresetuj",
     success: "",
     error: "",
+    isDisabled: false,
   });
 
-  const { newPassword, name, token, buttonText, success, error } = state;
+  const {
+    newPassword,
+    name,
+    token,
+    buttonText,
+    success,
+    error,
+    isDisabled,
+  } = state;
 
   useEffect(() => {
     const routerId = router.query.id;
     const decoded = jwt.decode(routerId);
-    console.log(decoded);
 
     if (decoded) {
       setState({ ...state, name: decoded.name, token: routerId });
@@ -31,13 +39,12 @@ const Reset = ({ router }) => {
   }, [router]);
 
   const handleChange = (e) => {
-    // e.preventDefault();
     setState({ ...state, newPassword: e.target.value, error: "", success: "" });
   };
 
   const handleSubmit = async (e) => {
     e.preventDefault();
-    setState({ ...state, buttonText: "Changing" });
+    setState({ ...state, buttonText: "Resetuje...", isDisabled: true });
 
     try {
       const response = await axios.put(`${process.env.API}/reset-password`, {
@@ -47,14 +54,16 @@ const Reset = ({ router }) => {
       setState({
         ...state,
         newPassword: "",
-        buttonText: "Changed",
+        buttonText: "Zresetuj",
+        isDisabled: false,
         success: response.data.message,
       });
     } catch (error) {
       console.log(error);
       setState({
         ...state,
-        buttonText: "Reset password",
+        buttonText: "Zresetuj",
+        isDisabled: false,
         error: error.response.data.error,
       });
     }
@@ -69,7 +78,7 @@ const Reset = ({ router }) => {
             className="form-control"
             onChange={handleChange}
             value={newPassword}
-            placeholder="New password"
+            placeholder="Hasło"
             required
           />
         </div>
@@ -86,7 +95,7 @@ const Reset = ({ router }) => {
     <Layout>
       <div className="row">
         <div className="col-md-6 offset-md-3">
-          <h1>Hello {name}! Ready to reset your password?</h1>
+          <h1>Cześć {name}! Zresetuj swoje hasło.</h1>
           {success && showSuccessMessage(success)}
           {error && showErrorMessage(error)}
           <br />

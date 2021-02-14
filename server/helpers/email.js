@@ -10,15 +10,15 @@ exports.registerEmailParams = (email, token) => {
         Html: {
           Charset: "UTF-8",
           Data: `<html>
-              <h1>Verify your email address</h1>
-              <p>Please use the following link to complete your registration: </p>
+              <h1>Aktywuj konto</h1>
+              <p>Uzyj ponizszego linku do aktywacji swojego konta: </p>
               <p>${process.env.CLIENT_URL}/auth/activate/${token}</p>
             </html>`,
         },
       },
       Subject: {
         Charset: "UTF-8",
-        Data: "Complete your registration",
+        Data: "Dokończ rejestracje",
       },
     },
   };
@@ -36,15 +36,15 @@ exports.forgotPasswordEmailParams = (email, token) => {
         Html: {
           Charset: "UTF-8",
           Data: `<html>
-              <h1>Reset your password</h1>
-              <p>Please use the following link to reset your password: </p>
+              <h1>Zresetuj swoje hasło</h1>
+              <p>Uzyj ponizszego linku do zresetowania hasła: </p>
               <p>${process.env.CLIENT_URL}/auth/password/reset/${token}</p>
             </html>`,
         },
       },
       Subject: {
         Charset: "UTF-8",
-        Data: "Reset your password",
+        Data: "Zresetuj hasło",
       },
     },
   };
@@ -62,15 +62,15 @@ exports.inviteEmailParams = (email, token) => {
         Html: {
           Charset: "UTF-8",
           Data: `<html>
-              <h1>Create new account</h1>
-              <p>Please use the following link to create your account: </p>
+              <h1>Stwórz nowe konto</h1>
+              <p>Uzyj ponizszego linku do stworzenia konta: </p>
               <p>${process.env.CLIENT_URL}/auth/invite/${token}</p>
             </html>`,
         },
       },
       Subject: {
         Charset: "UTF-8",
-        Data: "Create new account",
+        Data: "Stwórz nowe konto",
       },
     },
   };

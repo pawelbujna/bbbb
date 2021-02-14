@@ -10,10 +10,11 @@ const Invite = ({ admin, token }) => {
     email: "",
     error: "",
     success: "",
-    buttonText: "Send",
+    buttonText: "Wyślij",
+    isDisabled: false,
   });
 
-  const { email, error, success, buttonText } = state;
+  const { email, error, success, buttonText, isDisabled } = state;
 
   const handleChange = (name) => (e) => {
     setState({ ...state, [name]: e.target.value });
@@ -22,23 +23,25 @@ const Invite = ({ admin, token }) => {
   const handleSubmit = async (e) => {
     e.preventDefault();
 
-    setState({ ...state, buttonText: "Creating" });
+    setState({ ...state, buttonText: "Wysyłanie...", isDisabled: true });
 
     try {
-      const response = await axios.post(`${process.env.API}/invite`, { email });
+      await axios.post(`${process.env.API}/invite`, { email });
 
       setState({
         ...state,
         email: "",
         error: "",
-        success: `Invitation for ${response.data.name} has been sent`,
+        success: `Wysłaliśmy zaproszenie na: ${email}.`,
+        isDisabled: false,
       });
     } catch (error) {
       setState({
         ...state,
         success: "",
-        buttonText: "Create",
+        buttonText: "Wyślij",
         error: error.response.data.error,
+        isDisabled: false,
       });
     }
   };
@@ -47,18 +50,22 @@ const Invite = ({ admin, token }) => {
     return (
       <form onSubmit={handleSubmit}>
         <div className="form-group">
-          <label className="text-muted">Email</label>
           <input
             type="email"
             className="form-control"
             onChange={handleChange("email")}
             value={email}
+            placeholder="Email"
             required
           />
         </div>
 
         <div>
-          <button type="submit" className="btn btn-outline-warning">
+          <button
+            disabled={isDisabled}
+            type="submit"
+            className="btn btn-outline-warning"
+          >
             {buttonText}
           </button>
         </div>
@@ -69,7 +76,7 @@ const Invite = ({ admin, token }) => {
   return (
     <Layout>
       <div className="col-md-6 offset-md-3">
-        <h1>Send invitation</h1>
+        <h1>Wyślij zaproszenie</h1>
 
         <br />
         {success && showSuccessMessage(success)}

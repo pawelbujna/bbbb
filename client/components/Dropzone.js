@@ -28,6 +28,7 @@ const Dropzone = ({ files = [], onChange }) => {
       <div
         {...getRootProps({
           style: {
+            cursor: "pointer",
             height: "100px",
             display: "flex",
             alignItems: "center",
@@ -41,16 +42,16 @@ const Dropzone = ({ files = [], onChange }) => {
         <input {...getInputProps()} />
 
         {isDragActive ? (
-          <span>Drop the files here ...</span>
+          <span>Upuść pliki tutaj</span>
         ) : (
-          <span>Drag 'n' drop some files here, or click to select files</span>
+          <span>Upuśc pliki lub kliknij by dodac</span>
         )}
       </div>
 
       <div>
-        {data.map((file) => (
+        {data.map((file, index) => (
           <div
-            key={file.path}
+            key={index}
             className="alert alert-warning alert-dismissible"
             role="alert"
           >

@@ -6,20 +6,21 @@ import { showSuccessMessage, showErrorMessage } from "../../../helpers/alert";
 const Forgot = () => {
   const [state, setState] = useState({
     email: "",
-    buttonText: "Forgot password",
+    buttonText: "Wyślij",
     success: "",
     error: "",
+    isDisabled: false,
   });
 
-  const { email, buttonText, success, error } = state;
+  const { email, buttonText, success, error, isDisabled } = state;
 
   const handleChange = (e) => {
-    // e.preventDefault();
     setState({ ...state, email: e.target.value, error: "", success: "" });
   };
 
   const handleSubmit = async (e) => {
     e.preventDefault();
+    setState({ ...state, buttonText: "Wysyłanie...", isDisabled: true });
 
     try {
       const response = await axios.put(`${process.env.API}/forgot-password`, {
@@ -28,13 +29,15 @@ const Forgot = () => {
       setState({
         ...state,
         email: "",
-        buttonText: "Done",
+        buttonText: "Wyślij",
+        isDisabled: false,
         success: response.data.message,
       });
     } catch (error) {
       setState({
         ...state,
-        buttonText: "Forgot password",
+        buttonText: "Wyślij",
+        isDisabled: false,
         error: error.response.data.error,
       });
     }
@@ -54,7 +57,11 @@ const Forgot = () => {
           />
         </div>
         <div>
-          <button className="btn btn-outline-warning" type="submit">
+          <button
+            disabled={isDisabled}
+            className="btn btn-outline-warning"
+            type="submit"
+          >
             {buttonText}
           </button>
         </div>
@@ -66,7 +73,7 @@ const Forgot = () => {
     <Layout>
       <div className="row">
         <div className="col-md-6 offset-md-3">
-          <h1>Forgot Password</h1>
+          <h1>Zresetuj hasło</h1>
           <br />
           {success && showSuccessMessage(success)}
           {error && showErrorMessage(error)}

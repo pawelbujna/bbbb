@@ -16,6 +16,7 @@ const Edit = ({ token, article }) => {
     files: article?.files || [],
     buttonText: "Create",
   });
+  console.log(article);
 
   const [content, setContent] = useState(article.content);
 
@@ -111,7 +112,7 @@ const Edit = ({ token, article }) => {
     <Layout>
       <div className="row">
         <div className="col-md-6 offset-md-3">
-          <h1>Create category</h1>
+          <h1>Edit category</h1>
 
           <br />
 

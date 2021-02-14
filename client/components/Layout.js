@@ -1,4 +1,4 @@
-import Head from "next/head";
+import { useState } from "react";
 import Link from "next/link";
 import Router from "next/router";
 
@@ -12,6 +12,8 @@ Router.events.on("routeChangeComplete", (url) => NProgress.done());
 Router.events.on("routeChangeError", (url) => NProgress.done());
 
 const Layout = ({ children }) => {
+  const [isExpanded, setIsExpanded] = useState(false);
+
   const head = () => (
     <>
       <link
@@ -28,6 +30,10 @@ const Layout = ({ children }) => {
     </>
   );
 
+  const expandNavbar = () => {
+    setIsExpanded(!isExpanded);
+  };
+
   const handleLogout = () => {
     logout(() => {
       Router.push("/");
@@ -35,58 +41,66 @@ const Layout = ({ children }) => {
   };
 
   const nav = () => (
-    <ul className="nav nav-tabs bg-warning">
-      <li className="nav-item">
+    <>
+      <nav className="navbar navbar-expand-lg navbar-light bg-light">
         <Link href={isAuth() ? "/articles" : "/login"}>
-          <a className="nav-link text-dark">Home</a>
+          <a className="navbar-brand">Home</a>
         </Link>
-      </li>
 
-      {!isAuth() && (
-        <>
-          <li className="nav-item ml-auto">
-            <Link href="/login">
-              <a className="nav-link text-dark">Login</a>
-            </Link>
-          </li>
+        <button
+          className="navbar-toggler"
+          type="button"
+          data-toggle="collapse"
+          data-target="#navbarNavAltMarkup"
+          aria-controls="navbarNavAltMarkup"
+          aria-expanded="false"
+          aria-label="Toggle navigation"
+          onClick={() => {
+            expandNavbar();
+          }}
+        >
+          <span className="navbar-toggler-icon"></span>
+        </button>
 
-          {/* <li className="nav-item">
-            <Link href="/register">
-              <a className="nav-link text-dark">Register</a>
-            </Link>
-          </li> */}
-        </>
-      )}
+        <div
+          className={`collapse navbar-collapse justify-content-end ${
+            isExpanded ? "show" : ""
+          }`}
+          id="navbarNavAltMarkup"
+        >
+          <div className="navbar-nav">
+            {!isAuth() && (
+              <Link href="/login">
+                <a className="nav-item nav-link">Login</a>
+              </Link>
+            )}
 
-      {isAuth() && isAuth()?.role === "admin" && (
-        <li className="nav-item ml-auto">
-          <Link href="/admin">
-            <a className="nav-link text-dark">{isAuth().name}</a>
-          </Link>
-        </li>
-      )}
+            {isAuth() && isAuth()?.role === "admin" && (
+              <Link href="/admin">
+                <a className="nav-item nav-link">{isAuth().name}</a>
+              </Link>
+            )}
 
-      {isAuth() && isAuth().role !== "admin" && (
-        <li className="nav-item ml-auto">
-          <Link href="/user">
-            <a className="nav-link text-dark">{isAuth().name}</a>
-          </Link>
-        </li>
-      )}
+            {isAuth() && isAuth()?.role !== "admin" && (
+              <Link href="/user">
+                <a className="nav-item nav-link">{isAuth().name}</a>
+              </Link>
+            )}
 
-      {isAuth() && (
-        <li className="nav-item">
-          <a
-            className="nav-link text-dark"
-            onClick={() => {
-              handleLogout();
-            }}
-          >
-            Logout
-          </a>
-        </li>
-      )}
-    </ul>
+            {isAuth() && (
+              <a
+                className="nav-item nav-link"
+                onClick={() => {
+                  handleLogout();
+                }}
+              >
+                Logout
+              </a>
+            )}
+          </div>
+        </div>
+      </nav>
+    </>
   );
 
   return (

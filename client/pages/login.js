@@ -14,10 +14,11 @@ const Login = () => {
     password: "111111",
     error: "",
     success: "",
-    buttonText: "Login",
+    buttonText: "Zaloguj",
+    isDisabled: false,
   });
 
-  const { email, password, error, success, buttonText } = state;
+  const { email, password, error, success, buttonText, isDisabled } = state;
 
   useEffect(() => {
     isAuth() && Router.push("/");
@@ -29,14 +30,14 @@ const Login = () => {
       [name]: e.target.value,
       error: "",
       success: "",
-      buttonText: "Login",
+      buttonText: "Zaloguj",
     });
   };
 
   const handleSubmit = async (e) => {
     e.preventDefault();
 
-    setState({ ...state, buttonText: "Logging in" });
+    setState({ ...state, buttonText: "Loguje...", isDisabled: true });
 
     try {
       const response = await axios.post(`${process.env.API}/login`, {
@@ -47,12 +48,13 @@ const Login = () => {
       authenticate(response, () => {
         isAuth()?.role === "admin"
           ? Router.push("/admin")
-          : Router.push("/user");
+          : Router.push("/articles");
       });
     } catch (error) {
       setState({
         ...state,
-        buttonText: "Login",
+        buttonText: "Zaloguj",
+        isDisabled: false,
         error: error.response.data.error,
       });
     }
@@ -84,7 +86,11 @@ const Login = () => {
         </div>
 
         <div className="form-group">
-          <button className="btn btn-outline-warning" type="submit">
+          <button
+            disabled={isDisabled}
+            className="btn btn-success"
+            type="submit"
+          >
             {buttonText}
           </button>
         </div>
@@ -95,7 +101,7 @@ const Login = () => {
   return (
     <Layout>
       <div className="col-md-6 offset-md-3">
-        <h1>Login</h1>
+        <h1>Zaloguj</h1>
 
         <br />
 
@@ -105,7 +111,7 @@ const Login = () => {
         {loginForm()}
 
         <Link href="/auth/password/forgot">
-          <a className="text-danger float-right">Forgot Password</a>
+          <a className="text-danger float-right">Zapomniałeś hasła?</a>
         </Link>
       </div>
     </Layout>

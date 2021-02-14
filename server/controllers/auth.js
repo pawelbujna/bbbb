@@ -78,7 +78,8 @@ exports.register = (req, res) => {
 
     if (decoded.email !== email) {
       return res.status(401).json({
-        error: "Wrong email address.",
+        error:
+          "Niepoprawny email. Proszę uzyj tego na ktore wysłaliśmy zaproszenie.",
       });
     }
 
@@ -113,13 +114,13 @@ exports.register = (req, res) => {
         .then((data) => {
           console.log(`Email sent to ses: `, data);
           res.json({
-            message: `Email has been sent to ${email}. Follow the instructions on to complete your reigstration`,
+            message: `Email z linkiem aktywacyjnym został wysłany na: ${email}.`,
           });
         })
         .catch((err) => {
           console.log(err);
           res.status(400).json({
-            error: `Something went wrong. Try later.`,
+            error: `Coś poszło nie tak. Skontaktuj się z administratorem.`,
           });
         });
     });
@@ -135,7 +136,7 @@ exports.registerActivate = (req, res) => {
     function (err, decoded) {
       if (err) {
         return res.status(401).json({
-          error: "Expired link. Try again.",
+          error: "Token wygasł. Spróbuj jeszcze raz.",
         });
       }
 
@@ -144,8 +145,8 @@ exports.registerActivate = (req, res) => {
 
       User.findOne({ email }).exec((err, user) => {
         if (user) {
-          return res.statu(401).json({
-            error: "Email is taken.",
+          return res.status(401).json({
+            error: "Email juz istnieje.",
           });
         }
 
@@ -159,11 +160,12 @@ exports.registerActivate = (req, res) => {
         newUser.save((err) => {
           if (err) {
             return res.status(401).json({
-              error: "Error saving user in database. Try later.",
+              error:
+                "Problem z rejestracją uytkownika. Skontaktuj się z administratorem.",
             });
           }
           return res.json({
-            message: "Registrations success. Please login.",
+            message: "Konto stworzone. Pora się zalogować.",
           });
         });
       });
@@ -241,7 +243,7 @@ exports.invite = (req, res) => {
   User.findOne({ email }).exec((err, user) => {
     if (!err && user) {
       return res.status(400).json({
-        error: "User with that email does already exist.",
+        error: "Uytkownik z takim adresem email juz istnieje.",
       });
     }
 
@@ -257,13 +259,13 @@ exports.invite = (req, res) => {
       .then((data) => {
         console.log("Invitation sent", data);
         res.json({
-          message: `Invitation has been sent to ${email}.`,
+          message: `Zaproszenie zostao wysłane do: ${email}.`,
         });
       })
       .catch((error) => {
         console.log("Invitation sent failed", error);
         res.status(400).json({
-          error: `Something went wrong. Try later.`,
+          error: `Wysyłanie zaproszenia nie powiodło się. Skontaktuj się z adminitratorem.`,
         });
       });
   });
@@ -275,7 +277,7 @@ exports.forgotPassword = (req, res) => {
   User.findOne({ email }).exec((err, user) => {
     if (err || !user) {
       return res.status(400).json({
-        error: "User with that email does not exist.",
+        error: "Uzytkownik z takim adresem email nie istnieje",
       });
     }
 
@@ -292,7 +294,8 @@ exports.forgotPassword = (req, res) => {
     return user.updateOne({ resetPasswordLink: token }, (err, success) => {
       if (err) {
         return res.status(400).json({
-          error: "Password reset failed. Try later.",
+          error:
+            "Zmiana hasła nie powiodła się. Skontaktuj się z administratorem.",
         });
       }
 
@@ -300,15 +303,15 @@ exports.forgotPassword = (req, res) => {
 
       sendEmail
         .then((data) => {
-          console.log("reset password success", data);
+          console.log("Hasło zresetowane poprawnie", data);
           res.json({
-            message: `Email has been sent to ${email}. Click to reset your password.`,
+            message: `Wysłaliśmy link do zresetowania hasła na adres: ${email}`,
           });
         })
         .catch((error) => {
-          console.log("reset pasword failet", error);
+          console.log("reset pasword failed", error);
           res.status(400).json({
-            error: `Something went wrong. Try later.`,
+            error: `Zmiana hasła nie powiodła się. Skontaktuj się z administratorem.`,
           });
         });
     });
@@ -325,14 +328,14 @@ exports.resetPassword = (req, res) => {
       (err, success) => {
         if (err) {
           return res.status(400).json({
-            error: "Expired link. Try again.",
+            error: "Token wygasł. Spróbuj ponownie.",
           });
         }
 
         User.findOne({ resetPasswordLink }).exec((err, user) => {
           if (err || !user) {
             return res.status(400).json({
-              error: "Invalid token. Try again.",
+              error: "Nieprawidłowy token. Spróbuj jeszcze raz.",
             });
           }
 
@@ -342,12 +345,12 @@ exports.resetPassword = (req, res) => {
           user.save((error, result) => {
             if (error) {
               return res.status(400).json({
-                error: "Password reset failed. Try again",
+                error: "Hasło nie zostało zmienone. Spróbuj później.",
               });
             }
 
             res.json({
-              message: "Great! Now you can login with your new password.",
+              message: "Hasło zostało zmienione. Zaloguj się.",
             });
           });
         });

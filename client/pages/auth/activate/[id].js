@@ -11,12 +11,13 @@ const ActivateAccount = ({ router }) => {
   const [state, setState] = useState({
     name: "",
     token: "",
-    buttonText: "Activate Account",
+    buttonText: "Aktywuj",
     success: "",
     error: "",
+    isDisabled: false,
   });
 
-  const { name, token, buttonText, success, error } = state;
+  const { name, token, buttonText, success, error, isDisabled } = state;
 
   useEffect(() => {
     let token = router.query.id;
@@ -33,7 +34,7 @@ const ActivateAccount = ({ router }) => {
 
     setState({
       ...state,
-      buttonText: "Activating",
+      buttonText: "Aktywuje...",
     });
 
     try {
@@ -46,15 +47,15 @@ const ActivateAccount = ({ router }) => {
 
       setState({
         ...state,
-        name: "",
         token: "",
-        buttonText: "Activated",
+        buttonText: "Aktywuj",
         success: response.data.message,
       });
     } catch (error) {
       setState({
         ...state,
-        buttonText: "Activate Account",
+        buttonText: "Aktywuj",
+        success: "",
         error: error.response.data.error,
       });
     }
@@ -64,12 +65,13 @@ const ActivateAccount = ({ router }) => {
     <Layout>
       <div className="row">
         <div className="col-md-6 offset-md-3">
-          <h1>G'day {name}. Ready to activate your account?</h1>
+          <h1>Hej {name}. Aktywuj swoje konto.</h1>
           <br />
           {success && showSuccessMessage(success)}
           {error && showErrorMessage(error)}
 
           <button
+            disabled={isDisabled}
             className="btn btn-outline-warning btn-block"
             onClick={clickSubmit}
           >

@@ -1,4 +1,5 @@
 const express = require("express");
+const fileUpload = require("express-fileupload");
 const morgan = require("morgan");
 const bodyParser = require("body-parser");
 const cors = require("cors");
@@ -14,9 +15,10 @@ const userRoutes = require("./routes/user");
 const articleRoutes = require("./routes/article");
 // app middlewareds
 app.use(morgan("dev"));
-// app.use(bodyParser.json());
+app.use(bodyParser.json());
+app.use(fileUpload());
 // setting the limit for uploaded files
-app.use(bodyParser.json({ limit: "5mb", type: "application/json" }));
+// app.use(bodyParser.json({ limit: "5mb", type: "application/json" }));
 app.use(cors({ origin: process.env.CLIENT_URL }));
 
 mongoose

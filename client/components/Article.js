@@ -15,35 +15,41 @@ const Article = ({ data }) => {
 
   return (
     <>
-      {isAuth() && isAuth()?.role === "admin" && (
-        <div className="row">
-          <div className="col-md-12">
-            <Link href={`/admin/article/${data.slug}`}>
-              <a class="btn btn-primary ml-1">
-                <i class="bi bi-pencil"></i>
+      <div className="card mt-4">
+        <div className="card-header">
+          <h3 className="card-title">{data.name}</h3>
+          <p className="card-subtitle">
+            <small className="text-muted">{formatDate(data.createdAt)}</small>
+          </p>
+        </div>
+        <div className="card-body">
+          <div className="card-text">{Parser(data.content)}</div>
+        </div>
+
+        {data.files.length > 0 && (
+          <ul className="list-group list-group-flush">
+            {data.files.map((file, index) => (
+              <a
+                href={file.url}
+                target="_blank"
+                key={index}
+                className="list-group-item"
+              >
+                {file.key}
+              </a>
+            ))}
+          </ul>
+        )}
+
+        {isAuth() && isAuth()?.role === "admin" && (
+          <div className="card-footer">
+            <Link href={`/admin/article/delete/${data.slug}`}>
+              <a className="btn btn-danger btn-sm float-right">
+                Usuń ogłoszenie
               </a>
             </Link>
-
-            <button type="button" class="btn btn-danger ml-auto">
-              <i class="bi bi-trash"></i>
-            </button>
           </div>
-        </div>
-      )}
-
-      <div className="mt-3 mb-3 p-3 border">
-        <div className="row">
-          <div className="col-md-12 p-2">
-            <h2>{data.name}</h2>
-          </div>
-          <div className="col-md-12 p-2">
-            {Parser(data.content)}
-
-            <div>
-              <small className="text-muted">{formatDate(data.createdAt)}</small>
-            </div>
-          </div>
-        </div>
+        )}
       </div>
     </>
   );
