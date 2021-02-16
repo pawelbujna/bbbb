@@ -12,7 +12,7 @@ exports.getUser = (req, res) => {
       console.log("Error finding all users");
 
       return res.status(400).json({
-        error: "User could not be loaded",
+        error: "Nie udało się załadować użytkownika",
       });
     }
 
@@ -26,7 +26,8 @@ exports.getList = (req, res) => {
       console.log("Error finding all users");
 
       return res.status(400).json({
-        error: "User could not be loaded",
+        error:
+          "Nie udało się załadować listy uytkowników. Skontaktuj się z administratorem.",
       });
     }
 
@@ -42,7 +43,8 @@ exports.remove = (req, res) => {
       console.log("Error deleteing user");
 
       return res.status(400).json({
-        error: "Could not delete user",
+        error:
+          "Nie udało się usunąć uytkownika. Skotnaktuj się z administratorem.",
       });
     }
 

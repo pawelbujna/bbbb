@@ -41,7 +41,6 @@ const Delete = ({ token, user }) => {
         isButtonDisabled: true,
       });
     } catch (error) {
-      console.log(error);
       setState({
         ...state,
         error: error.response.data.error,
@@ -114,7 +113,6 @@ export const getServerSideProps = withAdmin(async ({ context, token }) => {
     });
     data = response.data;
   } catch (error) {
-    console.log(error);
     throw new Error("Something went wrong when downloading users.");
   }
 

@@ -34,11 +34,10 @@ const Delete = ({ id, token }) => {
 
       setState({
         ...state,
-        success: `Ogłoszenie ${response.data.name} zostało usunięte.`,
+        success: `Ogłoszenie ${id} zostało usunięte.`,
         isButtonDisabled: true,
       });
     } catch (error) {
-      console.log(error);
       setState({
         ...state,
         buttonText: "Usuń",
@@ -53,39 +52,31 @@ const Delete = ({ id, token }) => {
         <div className="col-md-6 offset-md-3">
           {!success && !error && (
             <>
-              <h1>Delete article</h1>
+              <h1>Usuń ogłoszenie</h1>
 
               <br />
 
               <p>
                 Jesteś pewien ze chcesz usunąc ogłoszenie <strong>{id}</strong>?
               </p>
-              <button className="btn btn-rpimary" onClick={deleteArticle}>
+
+              <button className="btn btn-danger" onClick={deleteArticle}>
                 Tak
               </button>
             </>
           )}
-
-          {success && (
-            <>
-              {showSuccessMessage(success)}
-              <br />
-              <p>Artykuł został usunięty</p>
-            </>
-          )}
+          {success && <>{showSuccessMessage(success)}</>}
           {error && showErrorMessage(error)}
           <br />
+          {success || error ? (
+            <>
+              <p>Wróć do ogłoszeń</p>
 
-          {success ||
-            (error && (
-              <>
-                <p>Wróć do ogłoszeń</p>
-
-                <Link href={"/articles"}>
-                  <a className="btn btn-primary">Artykuły</a>
-                </Link>
-              </>
-            ))}
+              <Link href={"/articles"}>
+                <a className="btn btn-primary">Ogłoszenia</a>
+              </Link>
+            </>
+          ) : null}
         </div>
       </div>
     </Layout>

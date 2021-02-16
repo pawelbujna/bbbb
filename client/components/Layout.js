@@ -18,14 +18,15 @@ const Layout = ({ children }) => {
     <>
       <link
         rel="stylesheet"
-        href="https://maxcdn.bootstrapcdn.com/bootstrap/4.0.0/css/bootstrap.min.css"
-        integrity="sha384-Gn5384xqQ1aoWXA+058RXPxPg6fy4IWvTNh0E263XmFcJlSAwiGgFAW/dAiS6JXm"
-        crossOrigin="anonymous"
+        href="https://cdn.jsdelivr.net/npm/bootstrap@4.6.0/dist/css/bootstrap.min.css"
+        integrity="sha384-B0vP5xmATw1+K9KRQjQERJvTumQW0nPEzvF6L/Z6nronJ3oUOFUFpCjEUQouq2+l"
+        crossorigin="anonymous"
       />
+
       <link
         rel="stylesheet"
         href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.3.0/font/bootstrap-icons.css"
-      ></link>
+      />
       <link rel="stylesheet" href="/static/css/style.css" />
     </>
   );
@@ -44,7 +45,9 @@ const Layout = ({ children }) => {
     <>
       <nav className="navbar navbar-expand-lg navbar-light bg-light">
         <Link href={isAuth() ? "/articles" : "/login"}>
-          <a className="navbar-brand">Home</a>
+          <a className="navbar-brand">
+            <strong>MZZPK</strong>
+          </a>
         </Link>
 
         <button
@@ -71,19 +74,19 @@ const Layout = ({ children }) => {
           <div className="navbar-nav">
             {!isAuth() && (
               <Link href="/login">
-                <a className="nav-item nav-link">Login</a>
+                <a className="nav-item nav-link mt-1">Login</a>
               </Link>
             )}
 
             {isAuth() && isAuth()?.role === "admin" && (
               <Link href="/admin">
-                <a className="nav-item nav-link">{isAuth().name}</a>
+                <a className="nav-item nav-link mt-1">{isAuth().name}</a>
               </Link>
             )}
 
             {isAuth() && isAuth()?.role !== "admin" && (
               <Link href="/user">
-                <a className="nav-item nav-link">{isAuth().name}</a>
+                <a className="nav-item nav-link mt-1">{isAuth().name}</a>
               </Link>
             )}
 
@@ -94,7 +97,7 @@ const Layout = ({ children }) => {
                   handleLogout();
                 }}
               >
-                Logout
+                <div className="btn btn-danger btn-sm ml-2">Wyloguj</div>
               </a>
             )}
           </div>

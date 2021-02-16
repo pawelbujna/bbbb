@@ -24,7 +24,9 @@ const Users = ({ users, token }) => {
             <tr key={`user-${index}`}>
               <th>{index}</th>
               <td>{user.name}</td>
-              <td>{user.email}</td>
+              <td>
+                <strong>{user.email}</strong>
+              </td>
               <td>{user.role}</td>
               <td>
                 <Link href={`/admin/users/delete/${user.salt}`}>

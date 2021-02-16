@@ -59,7 +59,6 @@ const Reset = ({ router }) => {
         success: response.data.message,
       });
     } catch (error) {
-      console.log(error);
       setState({
         ...state,
         buttonText: "Zresetuj",

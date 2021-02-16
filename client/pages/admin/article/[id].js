@@ -16,7 +16,6 @@ const Edit = ({ token, article }) => {
     files: article?.files || [],
     buttonText: "Create",
   });
-  console.log(article);
 
   const [content, setContent] = useState(article.content);
 
@@ -66,11 +65,7 @@ const Edit = ({ token, article }) => {
       });
 
       setContent("");
-
-      console.log("ARTICLE CREATE RESPONSE ", response);
     } catch (error) {
-      console.log("ARTICLE CREATE ERROR ", error);
-
       setState({
         ...state,
         buttonText: "Create",

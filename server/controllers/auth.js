@@ -52,7 +52,6 @@ exports.registerPrivate = (req, res) => {
 
     sendEmailOnRegister
       .then((data) => {
-        console.log(`Email sent to ses: `, data);
         res.json({
           message: `Email has been sent to ${email}. Follow the instructions on to complete your reigstration`,
         });
@@ -257,7 +256,6 @@ exports.invite = (req, res) => {
 
     sendEmail
       .then((data) => {
-        console.log("Invitation sent", data);
         res.json({
           message: `Zaproszenie zostao wysłane do: ${email}.`,
         });

@@ -27,7 +27,9 @@ exports.create = (req, res) => {
       const params = {
         Bucket: "hackr-papu",
         Key: `article/${file.name}`,
+        ACL: "public-read",
         Body: file.data,
+        ContentType: file.mimetype,
       };
 
       return s3.upload(params).promise();
@@ -81,17 +83,19 @@ exports.create = (req, res) => {
 };
 
 exports.list = (req, res) => {
-  Article.find({}).exec((err, data) => {
-    if (err) {
-      console.log("Error finding all articles");
+  Article.find({})
+    .sort({ createdAt: -1 })
+    .exec((err, data) => {
+      if (err) {
+        console.log("Error finding all articles");
 
-      return res.status(400).json({
-        error: "Article could not load articles",
-      });
-    }
+        return res.status(400).json({
+          error: "Nie mozna załadować ogłoszeń. Spróbuj później.",
+        });
+      }
 
-    res.json(data);
-  });
+      res.json(data);
+    });
 };
 
 // TODO: Fix edition of article
@@ -103,7 +107,7 @@ exports.read = (req, res) => {
       console.log("Error finding all articles");
 
       return res.status(400).json({
-        error: "Article could not load articles",
+        error: "Nie mozna załadować ogłoszeń. Spróbuj później.",
       });
     }
 
@@ -160,14 +164,12 @@ exports.remove = (req, res) => {
       });
     }
 
-    console.log(data);
     if (data && data.files && data.files.length > 0) {
       const deleteFromS3 = (fileName) => {
         const params = {
           Bucket: "hackr-papu",
           Key: `${fileName}`,
         };
-        console.log("deleteFromS3");
 
         return s3.deleteObject(params).promise();
       };
@@ -175,13 +177,11 @@ exports.remove = (req, res) => {
       const promises = [];
 
       data.files.forEach((file) => {
-        console.log("loop");
         promises.push(deleteFromS3(file.key));
       });
 
       Promise.all(promises)
         .then(() => {
-          console.log("deleted, promise resolved");
           res.json({
             message: "Artykuł usunięty pomyślnie",
           });
@@ -190,7 +190,10 @@ exports.remove = (req, res) => {
           console.log(err);
           return res
             .status(400)
-            .json({ error: "Deleting files from s3 failed" });
+            .json({
+              error:
+                "Usuwanie plików z serwera się nie powiodło. Skontaktuj się z administratorem.",
+            });
         });
     } else {
       console.log("response without files");
